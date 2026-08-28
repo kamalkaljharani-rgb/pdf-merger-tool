@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Merge PDF files for free in your browser. This private PDF merger runs fully on-device with no uploads, no server processing, and instant download."
+    />
+    <title>Free Browser PDF Merger | Private On-Device PDF Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      .drop-active {
+        border-color: rgb(13 148 136);
+        background: rgb(240 253 250);
+        box-shadow: 0 0 0 4px rgb(20 184 166 / 0.12);
+      }
+
+      .dragging {
+        opacity: 0.48;
+      }
+
+      summary::-webkit-details-marker {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-950">
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-teal-700">Client-side PDF utility</p>
+          <h1 class="mt-1 text-2xl font-semibold tracking-normal sm:text-3xl">Free PDF Merger</h1>
+        </div>
+        <nav class="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600" aria-label="Primary navigation">
+          <a class="transition hover:text-teal-700" href="#merge-tool">Merge Tool</a>
+          <a class="transition hover:text-teal-700" href="#how-to-merge-pdfs">Guide</a>
+          <a class="transition hover:text-teal-700" href="#faq">FAQ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        <div class="mb-5 rounded-lg border border-dashed border-slate-300 bg-white px-4 py-5 text-center text-sm text-slate-500" aria-label="Advertisement">
+          <div class="relative mx-auto flex min-h-24 max-w-4xl items-center justify-center rounded-md bg-slate-100">
+            <ins
+              class="adsbygoogle block w-full"
+              style="display:block"
+              data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+              data-ad-slot="0000000001"
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            ></ins>
+            <span class="pointer-events-none absolute text-xs font-medium uppercase tracking-wide text-slate-400">Advertisement</span>
+          </div>
+        </div>
+
+        <section id="merge-tool" class="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div class="border-b border-slate-200 px-5 py-5 sm:px-6">
+            <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 class="text-xl font-semibold tracking-normal">Merge PDFs in your browser</h2>
+                <p class="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
+                  Select multiple PDFs, arrange the order, and download one combined document. Files stay on this device.
+                </p>
+              </div>
+              <div class="flex items-center gap-2 rounded-md bg-teal-50 px-3 py-2 text-sm font-medium text-teal-800">
+                <span class="h-2 w-2 rounded-full bg-teal-600"></span>
+                Zero server processing
+              </div>
+            </div>
+          </div>
+
+          <div class="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1fr_360px]">
+            <div>
+              <label
+                id="drop-zone"
+                for="file-input"
+                class="flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center transition"
+              >
+                <span class="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-teal-100 text-teal-800">
+                  <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 3v12m0-12 4.4 4.4M12 3 7.6 7.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M5 14.75v3.5A2.75 2.75 0 0 0 7.75 21h8.5A2.75 2.75 0 0 0 19 18.25v-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  </svg>
+                </span>
+                <span class="text-base font-semibold text-slate-950">Drag &amp; drop your PDFs here, or click to select</span>
+                <span class="mt-2 max-w-md text-sm leading-6 text-slate-600">
+                  Add two or more PDF files. Reorder them before merging so the final document follows the exact sequence you need.
+                </span>
+                <input
+                  id="file-input"
+                  class="mt-5 block w-full max-w-md cursor-pointer rounded-md border border-slate-300 bg-white text-sm text-slate-700 shadow-sm file:mr-4 file:border-0 file:bg-teal-700 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-white hover:file:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2"
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  multiple
+                />
+              </label>
+
+              <div class="mt-5">
+                <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Selected files</h3>
+                    <p id="file-summary" class="mt-1 text-sm text-slate-600">No PDFs selected yet.</p>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <button
+                      id="clear-button"
+                      type="button"
+                      class="hidden rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Clear All
+                    </button>
+                    <button
+                      id="add-more-button"
+                      type="button"
+                      class="hidden rounded-md bg-teal-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
+                    >
+                      Add More PDFs
+                    </button>
+                  </div>
+                </div>
+
+                <div id="empty-state" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+                  Your PDFs will appear here with size, order controls, and remove buttons.
+                </div>
+
+                <ul id="file-list" class="hidden space-y-2" aria-live="polite"></ul>
+              </div>
+            </div>
+
+            <aside class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <h3 class="text-base font-semibold">Merge status</h3>
+              <p id="status-text" class="mt-2 min-h-10 text-sm leading-5 text-slate-600">Add files to begin.</p>
+              <div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-200" aria-label="Merge progress">
+                <div id="progress-bar" class="h-full w-0 rounded-full bg-teal-700 transition-all duration-200"></div>
+              </div>
+              <p id="progress-label" class="mt-2 text-sm font-medium text-slate-700">0%</p>
+              <button
+                id="merge-button"
+                type="button"
+                disabled
+                class="mt-5 inline-flex w-full items-center justify-center rounded-md bg-teal-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
+              >
+                Merge &amp; Download PDF
+              </button>
+              <p class="mt-4 text-xs leading-5 text-slate-500">
+                Large merges run in a background Web Worker so this page stays responsive while the final PDF is prepared.
+              </p>
+            </aside>
+          </div>
+        </section>
+
+        <div class="mt-5 rounded-lg border border-dashed border-slate-300 bg-white px-4 py-5 text-center text-sm text-slate-500" aria-label="Advertisement">
+          <div class="relative mx-auto flex min-h-24 max-w-4xl items-center justify-center rounded-md bg-slate-100">
+            <ins
+              class="adsbygoogle block w-full"
+              style="display:block"
+              data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+              data-ad-slot="0000000002"
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            ></ins>
+            <span class="pointer-events-none absolute text-xs font-medium uppercase tracking-wide text-slate-400">Advertisement</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
+          <section id="how-to-merge-pdfs" class="prose prose-slate max-w-none">
+            <h2 class="text-2xl font-semibold tracking-normal text-slate-950">How to Merge PDFs</h2>
+            <p class="mt-4 leading-7 text-slate-700">
+              Merging PDF files should be a simple task: choose the documents, place them in the right order, and download one clean file. This tool is designed around that workflow. Start by dragging your PDF files into the upload area or by using the visible file selector. You can add reports, invoices, forms, scanned pages, statements, contracts, application packets, presentations exported as PDFs, or any other standard PDF document. After files are added, the selected file list shows each document name and size in megabytes so you can confirm that the right files are included before processing begins.
+            </p>
+            <p class="mt-4 leading-7 text-slate-700">
+              The order of files matters because the merged PDF follows the selected list from top to bottom. If your cover page should come first, place it at the top. If appendices, receipts, or supporting documents should appear after the main file, move them down. You can drag items in the list or use the arrow buttons for precise reordering. If a file was added by mistake, remove just that file. If you want to start again, use Clear All. Once the list is correct, select Merge &amp; Download PDF. The progress area will show a real-time counter such as "Merging file 12 of 66 (18%)..." so you can see exactly what is happening.
+            </p>
+            <p class="mt-4 leading-7 text-slate-700">
+              When the merge is complete, the browser automatically opens its normal download prompt for a file named merged_document.pdf. The result can be saved anywhere on your computer and opened in any PDF reader. Because the process happens directly in your browser, speed depends mostly on your device, the number of pages, and the size of the PDFs. Small files often finish almost instantly. Very large batches, such as dozens of scanned documents, may take longer because image-heavy PDF pages require more memory and processing time. The page remains usable during the merge because the heavy work runs outside the main interface thread.
+            </p>
+          </section>
+
+          <section class="mt-10">
+            <h2 class="text-2xl font-semibold tracking-normal text-slate-950">Why Choose On-Device Merging?</h2>
+            <p class="mt-4 leading-7 text-slate-700">
+              A traditional online PDF merger usually uploads files to a remote server, processes them there, and then sends the combined result back to you. That model can work, but it has costs. Uploading can be slow, especially with large scanned PDFs. Server processing can create queues during busy periods. Some services limit file size, page count, or number of daily merges unless you create an account or pay for a subscription. More importantly, uploading means your document contents leave your device, even if only temporarily.
+            </p>
+            <p class="mt-4 leading-7 text-slate-700">
+              This PDF merger uses a different architecture. It loads a trusted browser JavaScript library, pdf-lib, and performs the document assembly locally. Your browser reads the selected files, copies pages into a new PDF document, and creates the final download. There is no database, upload endpoint, account system, cloud storage bucket, queue, or hidden backend. That keeps hosting costs close to zero and gives users an experience that is fast for everyday files. It also means the tool can be placed on a simple static website without renting a server for document processing.
+            </p>
+            <p class="mt-4 leading-7 text-slate-700">
+              On-device merging is especially useful for routine administrative work. Students can combine assignments and cover sheets. Freelancers can attach invoices to timesheets. Applicants can join resumes, certificates, and identification forms. Office teams can combine signed pages, policy documents, or meeting packets. Since the output is generated locally, the workflow avoids the delay of uploading several files and waiting for a remote system to send back the answer. For many users, the result feels immediate: select, arrange, merge, download.
+            </p>
+            <p class="mt-4 leading-7 text-slate-700">
+              The application also uses a Web Worker for the merge operation. A Web Worker is a browser feature that lets expensive tasks run in the background. Without a worker, a large PDF merge can make buttons, scrolling, and progress indicators feel frozen while JavaScript processes pages. With a worker, the interface thread stays responsive and receives progress messages from the background process. This is important when someone merges 50 or more files, because the tool should continue showing clear feedback instead of appearing stuck.
+            </p>
+          </section>
+
+          <section class="mt-10">
+            <h2 class="text-2xl font-semibold tracking-normal text-slate-950">Security &amp; Privacy Guarantee</h2>
+            <p class="mt-4 leading-7 text-slate-700">
+              Privacy is the main reason this tool is built as a client-side application. The selected PDFs are not uploaded to a server by this page. They are read by your browser from your local device, processed in memory, and converted into a new downloadable PDF. The page does not need your email address, does not ask you to create an account, and does not store a copy of the merged document. If you close or refresh the tab, the selected file list is gone because it exists only in the temporary page session.
+            </p>
+            <p class="mt-4 leading-7 text-slate-700">
+              This design is helpful when documents contain sensitive information. Many PDFs include names, addresses, invoice details, tax numbers, signatures, legal terms, academic records, medical references, or internal business notes. For documents like these, a local workflow reduces exposure because the document contents do not pass through a third-party processing server. You remain responsible for the device and browser you use, but the tool itself does not create a remote copy as part of the merge.
+            </p>
+            <p class="mt-4 leading-7 text-slate-700">
+              The application also avoids unnecessary permissions. It only needs access to files you explicitly choose through the file input or drag-and-drop action. It does not scan folders, does not request access to your file system beyond the selected documents, and does not require a login. The final download is produced through the browser's standard download mechanism. If a PDF is password protected, encrypted in a way the library cannot read, or damaged, the merge may fail and the status message will explain that the file could not be processed.
+            </p>
+            <p class="mt-4 leading-7 text-slate-700">
+              No web tool can promise that every PDF from every source will be perfect, because PDFs can contain unusual structures, permissions, malformed data, or very large embedded images. Still, the approach here is intentionally conservative: process only the files the user selected, show clear progress, fail visibly when a document cannot be read, and create the merged file locally. For privacy-sensitive merging, that is the strongest practical model for a free static web tool.
+            </p>
+          </section>
+
+          <section class="mt-10">
+            <h2 id="faq" class="text-2xl font-semibold tracking-normal text-slate-950">PDF Merger FAQ</h2>
+            <div class="mt-5 divide-y divide-slate-200 rounded-lg border border-slate-200">
+              <details class="group p-4" open>
+                <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-slate-950">
+                  Is this PDF merger really free?
+                  <span class="text-teal-700 transition group-open:rotate-45">+</span>
+                </summary>
+                <p class="mt-3 leading-7 text-slate-700">
+                  Yes. The tool is built as a static browser application, so it does not require paid server-side PDF processing. You can merge PDFs without creating an account, installing software, or sending files to a backend service. Normal internet access is needed to load the page and its CDN libraries unless you host those assets yourself.
+                </p>
+              </details>
+              <details class="group p-4">
+                <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-slate-950">
+                  Are my PDF files uploaded anywhere?
+                  <span class="text-teal-700 transition group-open:rotate-45">+</span>
+                </summary>
+                <p class="mt-3 leading-7 text-slate-700">
+                  No. The files you choose are handled by your browser on your device. This page does not include backend server code for uploads or remote processing. The merge is performed with pdf-lib in a Web Worker, and the finished PDF is offered as a local browser download.
+                </p>
+              </details>
+              <details class="group p-4">
+                <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-slate-950">
+                  How many PDFs can I merge at once?
+                  <span class="text-teal-700 transition group-open:rotate-45">+</span>
+                </summary>
+                <p class="mt-3 leading-7 text-slate-700">
+                  The practical limit depends on your browser, available memory, and the size of the PDF pages. The application is designed for large batches and runs the merge in a background worker, but extremely large scanned documents can still use significant memory. If a merge fails, try splitting the job into smaller groups and then merging those results.
+                </p>
+              </details>
+              <details class="group p-4">
+                <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-slate-950">
+                  Can I change the order before downloading?
+                  <span class="text-teal-700 transition group-open:rotate-45">+</span>
+                </summary>
+                <p class="mt-3 leading-7 text-slate-700">
+                  Yes. The final document follows the selected file list from top to bottom. Use drag-and-drop in the list or the arrow buttons next to each file to move documents earlier or later. Review the order before pressing Merge &amp; Download PDF.
+                </p>
+              </details>
+              <details class="group p-4">
+                <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-slate-950">
+                  Why did my PDF fail to merge?
+                  <span class="text-teal-700 transition group-open:rotate-45">+</span>
+                </summary>
+                <p class="mt-3 leading-7 text-slate-700">
+                  Some PDFs are encrypted, password protected, corrupted, or built with unusual structures that a browser library cannot read. If that happens, remove the problem file and try again, or open the document in a PDF editor and export a clean copy before merging.
+                </p>
+              </details>
+            </div>
+          </section>
+        </article>
+      </section>
+    </main>
+
+    <footer class="border-t border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <p>&copy; <span id="year"></span> Free PDF Merger. All processing happens in your browser.</p>
+        <nav class="flex flex-wrap gap-4" aria-label="Footer navigation">
+          <a class="font-medium transition hover:text-teal-700" href="privacy.html">Privacy</a>
+          <a class="font-medium transition hover:text-teal-700" href="terms.html">Terms</a>
+          <a class="font-medium transition hover:text-teal-700" href="contact.html">Contact</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script>
+      const fileInput = document.getElementById("file-input");
+      const dropZone = document.getElementById("drop-zone");
+      const fileList = document.getElementById("file-list");
+      const fileSummary = document.getElementById("file-summary");
+      const emptyState = document.getElementById("empty-state");
+      const clearButton = document.getElementById("clear-button");
+      const addMoreButton = document.getElementById("add-more-button");
+      const mergeButton = document.getElementById("merge-button");
+      const statusText = document.getElementById("status-text");
+      const progressBar = document.getElementById("progress-bar");
+      const progressLabel = document.getElementById("progress-label");
+      const year = document.getElementById("year");
+
+      year.textContent = new Date().getFullYear();
+
+      let selectedFiles = [];
+      let draggedIndex = null;
+      let activeWorker = null;
+      let activeWorkerUrl = null;
+      let isMerging = false;
+
+      const workerSource = [
+        "self.importScripts('https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js');",
+        "self.onmessage = async function(event) {",
+        "  if (!event.data || event.data.type !== 'merge') return;",
+        "  const files = event.data.files || [];",
+        "  const totalFiles = files.length;",
+        "  try {",
+        "    const mergedPdf = await PDFLib.PDFDocument.create();",
+        "    mergedPdf.setTitle('Merged PDF');",
+        "    mergedPdf.setProducer('Client-side PDF Merger');",
+        "    mergedPdf.setCreationDate(new Date());",
+        "    mergedPdf.setModificationDate(new Date());",
+        "    for (let fileIndex = 0; fileIndex < totalFiles; fileIndex += 1) {",
+        "      const file = files[fileIndex];",
+        "      const startPercent = Math.floor((fileIndex / totalFiles) * 100);",
+        "      self.postMessage({",
+        "        type: 'progress',",
+        "        percent: startPercent,",
+        "        currentFile: fileIndex + 1,",
+        "        totalFiles: totalFiles,",
+        "        message: 'Merging file ' + (fileIndex + 1) + ' of ' + totalFiles + ' (' + startPercent + '%)...'",
+        "      });",
+        "      const sourceBytes = await file.arrayBuffer();",
+        "      const sourcePdf = await PDFLib.PDFDocument.load(sourceBytes);",
+        "      const pageCount = sourcePdf.getPageCount();",
+        "      for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {",
+        "        const copiedPages = await mergedPdf.copyPages(sourcePdf, [pageIndex]);",
+        "        mergedPdf.addPage(copiedPages[0]);",
+        "        const fileProgress = pageCount ? (pageIndex + 1) / pageCount : 1;",
+        "        const percent = Math.min(99, Math.round(((fileIndex + fileProgress) / totalFiles) * 100));",
+        "        self.postMessage({",
+        "          type: 'progress',",
+        "          percent: percent,",
+        "          currentFile: fileIndex + 1,",
+        "          totalFiles: totalFiles,",
+        "          message: 'Merging file ' + (fileIndex + 1) + ' of ' + totalFiles + ' (' + percent + '%)...'",
+        "        });",
+        "        if (pageIndex % 12 === 0) {",
+        "          await new Promise(function(resolve) { setTimeout(resolve, 0); });",
+        "        }",
+        "      }",
+        "    }",
+        "    self.postMessage({ type: 'progress', percent: 100, currentFile: totalFiles, totalFiles: totalFiles, message: 'Finalizing download (100%)...' });",
+        "    const mergedBytes = await mergedPdf.save();",
+        "    const result = mergedBytes.buffer.slice(mergedBytes.byteOffset, mergedBytes.byteOffset + mergedBytes.byteLength);",
+        "    self.postMessage({ type: 'complete', buffer: result }, [result]);",
+        "  } catch (error) {",
+        "    self.postMessage({",
+        "      type: 'error',",
+        "      message: error && error.message ? error.message : 'The merge failed. One or more PDFs may be encrypted, password protected, or damaged.'",
+        "    });",
+        "  }",
+        "};",
+      ].join("\n");
+
+      function fileKey(file) {
+        return [file.name, file.size, file.lastModified].join("-");
+      }
+
+      function isPdf(file) {
+        return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+      }
+
+      function formatMB(bytes) {
+        return (bytes / 1024 / 1024).toFixed(bytes >= 10 * 1024 * 1024 ? 1 : 2) + " MB";
+      }
+
+      function setProgress(percent, message) {
+        const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+        progressBar.style.width = safePercent + "%";
+        progressLabel.textContent = safePercent + "%";
+        statusText.textContent = message;
+      }
+
+      function addFiles(fileListLike) {
+        const files = Array.from(fileListLike || []);
+        const pdfFiles = files.filter(isPdf);
+        const seen = new Set(selectedFiles.map((item) => item.key));
+        const fresh = [];
+
+        pdfFiles.forEach((file) => {
+          const key = fileKey(file);
+          if (seen.has(key)) return;
+          seen.add(key);
+          fresh.push({
+            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+            key,
+            file,
+          });
+        });
+
+        selectedFiles = selectedFiles.concat(fresh);
+        fileInput.value = "";
+
+        if (files.length && !pdfFiles.length) {
+          setProgress(0, "Only PDF files can be added.");
+        } else if (pdfFiles.length && fresh.length < pdfFiles.length) {
+          setProgress(0, "Duplicate PDFs were skipped.");
+        } else if (selectedFiles.length) {
+          setProgress(0, "Ready to merge.");
+        }
+
+        renderFileList();
+      }
+
+      function moveFile(fromIndex, toIndex) {
+        if (isMerging) return;
+        if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return;
+        if (fromIndex >= selectedFiles.length || toIndex >= selectedFiles.length) return;
+        const next = selectedFiles.slice();
+        const moved = next.splice(fromIndex, 1)[0];
+        next.splice(toIndex, 0, moved);
+        selectedFiles = next;
+        renderFileList();
+      }
+
+      function removeFile(index) {
+        if (isMerging) return;
+        selectedFiles.splice(index, 1);
+        if (!selectedFiles.length) setProgress(0, "Add files to begin.");
+        renderFileList();
+      }
+
+      function clearFiles() {
+        if (isMerging) return;
+        selectedFiles = [];
+        fileInput.value = "";
+        setProgress(0, "Add files to begin.");
+        renderFileList();
+      }
+
+      function renderFileList() {
+        const count = selectedFiles.length;
+        const totalSize = selectedFiles.reduce((sum, item) => sum + item.file.size, 0);
+
+        fileSummary.textContent = count
+          ? count + " PDF" + (count === 1 ? "" : "s") + " selected, " + formatMB(totalSize) + " total."
+          : "No PDFs selected yet.";
+
+        emptyState.classList.toggle("hidden", count > 0);
+        fileList.classList.toggle("hidden", count === 0);
+        dropZone.classList.toggle("hidden", count > 0);
+        clearButton.classList.toggle("hidden", count === 0);
+        addMoreButton.classList.toggle("hidden", count === 0);
+        mergeButton.disabled = count < 2 || isMerging;
+        clearButton.disabled = isMerging;
+        addMoreButton.disabled = isMerging;
+        fileInput.disabled = isMerging;
+
+        fileList.replaceChildren();
+
+        selectedFiles.forEach((item, index) => {
+          const li = document.createElement("li");
+          li.className = "grid gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:grid-cols-[1fr_auto]";
+          li.draggable = !isMerging;
+          li.dataset.index = String(index);
+
+          li.addEventListener("dragstart", (event) => {
+            if (isMerging) return;
+            draggedIndex = index;
+            li.classList.add("dragging");
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", String(index));
+          });
+
+          li.addEventListener("dragend", () => {
+            draggedIndex = null;
+            li.classList.remove("dragging");
+          });
+
+          li.addEventListener("dragover", (event) => {
+            if (isMerging) return;
+            event.preventDefault();
+            li.classList.add("border-teal-500");
+          });
+
+          li.addEventListener("dragleave", () => li.classList.remove("border-teal-500"));
+
+          li.addEventListener("drop", (event) => {
+            if (isMerging) return;
+            event.preventDefault();
+            li.classList.remove("border-teal-500");
+            const from = Number(event.dataTransfer.getData("text/plain") || draggedIndex);
+            moveFile(from, index);
+          });
+
+          const info = document.createElement("div");
+          info.className = "min-w-0";
+
+          const titleRow = document.createElement("div");
+          titleRow.className = "flex min-w-0 items-center gap-3";
+
+          const badge = document.createElement("span");
+          badge.className = "flex h-8 min-w-8 items-center justify-center rounded-md bg-slate-100 text-sm font-semibold text-slate-700";
+          badge.textContent = String(index + 1);
+
+          const name = document.createElement("p");
+          name.className = "truncate text-sm font-semibold text-slate-950";
+          name.textContent = item.file.name;
+
+          titleRow.append(badge, name);
+
+          const meta = document.createElement("p");
+          meta.className = "mt-1 text-sm text-slate-500";
+          meta.textContent = formatMB(item.file.size);
+
+          info.append(titleRow, meta);
+
+          const controls = document.createElement("div");
+          controls.className = "flex items-center justify-end gap-1";
+
+          const up = createIconButton("Move earlier", "M6 15l6-6 6 6");
+          const down = createIconButton("Move later", "M6 9l6 6 6-6");
+          const remove = createIconButton("Remove file", "M7 7l10 10M17 7 7 17");
+          up.disabled = index === 0 || isMerging;
+          down.disabled = index === selectedFiles.length - 1 || isMerging;
+          remove.disabled = isMerging;
+          up.addEventListener("click", () => moveFile(index, index - 1));
+          down.addEventListener("click", () => moveFile(index, index + 1));
+          remove.addEventListener("click", () => removeFile(index));
+
+          controls.append(up, down, remove);
+          li.append(info, controls);
+          fileList.appendChild(li);
+        });
+      }
+
+      function createIconButton(label, pathData) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.title = label;
+        button.setAttribute("aria-label", label);
+        button.className =
+          "rounded-md border border-slate-300 bg-white p-2 text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40";
+
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("aria-hidden", "true");
+        svg.setAttribute("width", "18");
+        svg.setAttribute("height", "18");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("fill", "none");
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", pathData);
+        path.setAttribute("stroke", "currentColor");
+        path.setAttribute("stroke-width", "2");
+        path.setAttribute("stroke-linecap", "round");
+        path.setAttribute("stroke-linejoin", "round");
+
+        svg.appendChild(path);
+        button.appendChild(svg);
+        return button;
+      }
+
+      function downloadMergedPdf(buffer) {
+        const blob = new Blob([buffer], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "merged_document.pdf";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function startMerge() {
+        if (selectedFiles.length < 2 || isMerging) return;
+
+        isMerging = true;
+        renderFileList();
+        setProgress(0, "Preparing background merge...");
+        mergeButton.textContent = "Merging...";
+
+        activeWorkerUrl = URL.createObjectURL(new Blob([workerSource], { type: "application/javascript" }));
+        activeWorker = new Worker(activeWorkerUrl);
+
+        activeWorker.onmessage = (event) => {
+          const data = event.data || {};
+          if (data.type === "progress") {
+            setProgress(data.percent, data.message);
+          }
+
+          if (data.type === "complete") {
+            downloadMergedPdf(data.buffer);
+            setProgress(100, "Merged PDF downloaded.");
+            finishMerge();
+          }
+
+          if (data.type === "error") {
+            setProgress(0, "Merge failed: " + data.message);
+            finishMerge();
+          }
+        };
+
+        activeWorker.onerror = (error) => {
+          const detail = error && error.message ? " " + error.message : "";
+          setProgress(0, "Merge failed. The browser worker stopped unexpectedly." + detail);
+          finishMerge();
+        };
+
+        activeWorker.postMessage({
+          type: "merge",
+          files: selectedFiles.map((item) => item.file),
+        });
+      }
+
+      function finishMerge() {
+        if (activeWorker) {
+          activeWorker.terminate();
+          activeWorker = null;
+        }
+        if (activeWorkerUrl) {
+          URL.revokeObjectURL(activeWorkerUrl);
+          activeWorkerUrl = null;
+        }
+        isMerging = false;
+        mergeButton.textContent = "Merge & Download PDF";
+        renderFileList();
+      }
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          if (!isMerging) dropZone.classList.add("drop-active");
+        });
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.remove("drop-active");
+        });
+      });
+
+      dropZone.addEventListener("drop", (event) => {
+        if (!isMerging) addFiles(event.dataTransfer.files);
+      });
+
+      fileInput.addEventListener("click", (event) => event.stopPropagation());
+      fileInput.addEventListener("change", (event) => addFiles(event.target.files));
+      addMoreButton.addEventListener("click", () => fileInput.click());
+      clearButton.addEventListener("click", clearFiles);
+      mergeButton.addEventListener("click", startMerge);
+
+      renderFileList();
+    </script>
+  </body>
+</html>
