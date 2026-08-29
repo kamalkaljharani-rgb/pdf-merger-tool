@@ -477,6 +477,10 @@
         selectedFiles = selectedFiles.concat(fresh);
         fileInput.value = "";
 
+        if (pdfFiles.length && window.va) {
+          window.va("track", "file_selected", { count: pdfFiles.length });
+        }
+
         if (files.length && !pdfFiles.length) {
           setProgress(0, "Only PDF files can be added.");
         } else if (pdfFiles.length && fresh.length < pdfFiles.length) {
@@ -663,17 +667,25 @@
 
         activeWorker.onmessage = (event) => {
           const data = event.data || {};
+          const messageType = String(data.type || "").toUpperCase();
+
           if (data.type === "progress") {
             setProgress(data.percent, data.message);
           }
 
-          if (data.type === "complete") {
+          if (messageType === "COMPLETE") {
+            if (window.va) {
+              window.va("track", "merge_completed", { file_count: selectedFiles.length });
+            }
             downloadMergedPdf(data.buffer);
             setProgress(100, "Merged PDF downloaded.");
             finishMerge();
           }
 
-          if (data.type === "error") {
+          if (messageType === "ERROR") {
+            if (window.va) {
+              window.va("track", "merge_failed", { error_message: data.message });
+            }
             setProgress(0, "Merge failed: " + data.message);
             finishMerge();
           }
