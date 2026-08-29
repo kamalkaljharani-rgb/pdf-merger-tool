@@ -41,6 +41,7 @@
     </style>
     <!-- Canonical Tag -->
         <link rel="canonical" href="https://expresspdf.in/" />
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="cf1d8d75-42bb-4ec9-aff2-51c2dc6f204f"></script>
   </head>
   <body class="min-h-screen bg-slate-50 text-slate-950">
     <header class="border-b border-slate-200 bg-white">
@@ -479,8 +480,8 @@
         selectedFiles = selectedFiles.concat(fresh);
         fileInput.value = "";
 
-        if (pdfFiles.length && window.va) {
-          window.va("track", "file_selected", { count: pdfFiles.length });
+        if (pdfFiles.length && window.umami) {
+          window.umami.track("file_selected", { count: pdfFiles.length });
         }
 
         if (files.length && !pdfFiles.length) {
@@ -676,8 +677,8 @@
           }
 
           if (messageType === "COMPLETE") {
-            if (window.va) {
-              window.va("track", "merge_completed", { file_count: selectedFiles.length });
+            if (window.umami) {
+              window.umami.track("merge_completed", { file_count: selectedFiles.length });
             }
             downloadMergedPdf(data.buffer);
             setProgress(100, "Merged PDF downloaded.");
@@ -685,8 +686,8 @@
           }
 
           if (messageType === "ERROR") {
-            if (window.va) {
-              window.va("track", "merge_failed", { error_message: data.message });
+            if (window.umami) {
+              window.umami.track("merge_failed", { error_message: data.message });
             }
             setProgress(0, "Merge failed: " + data.message);
             finishMerge();
